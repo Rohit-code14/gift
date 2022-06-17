@@ -12,7 +12,8 @@ const {
     managerAllUsers,
     adminOneUser,
     adminUpdateUser,
-    adminDeleteUser
+    adminDeleteUser,
+    vendorSignUp
 } = require("../controller/userController")
 const { isLoggedIn,roleCheck,verify } = require("../middleware/user")
 
@@ -22,9 +23,11 @@ router.route("/verify").post(verify)
 router.route("/logout").get(logout)
 router.route("/forgotpassword").post(forgotPassword)
 router.route("/password/reset/:token").post(resetPassword)
-router.route("/dashboard").get(isLoggedIn,getLoggedInUserDetails)
+router.route("/dashboard").get(isLoggedIn,getLoggedInUserDetails)//
 router.route("/password/update").post(isLoggedIn, changePassword)
 router.route("/userdashboard/update").post(isLoggedIn, updatUserDetails)
+
+router.route("/vendor/signup").post(vendorSignUp);
 
 
 router.route("/admin/users").get(isLoggedIn,roleCheck('admin'), adminAllUsers)

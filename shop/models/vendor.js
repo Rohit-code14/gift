@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const crypto = require("crypto")
 
-const userSchema = new mongoose.Schema({
+const vendorSchema = new mongoose.Schema({
     name:{
         type: String,
         required: [true, "Please provide a name"],
@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema({
     },
     shopname:{
         type:String,
+        required: [true, "Please  enter your shop name"]
     },
     email: {
         type: String,
@@ -27,7 +28,7 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        default: "user",
+        default: "vendor",
     },
     photo: {
         id: {
@@ -48,24 +49,24 @@ const userSchema = new mongoose.Schema({
         default: Date.now
     }
 })
-userSchema.pre('save', async function(next){
+vendorSchema.pre('save', async function(next){
     if(!this.isModified('password')){
         return next()
     }
     this.password = await bcrypt.hash(this.password, 10);
 })
 
-userSchema.methods.isPasswordValid = async function(inpPassword){
+vendorSchema.methods.isPasswordValid = async function(inpPassword){
     return await bcrypt.compare(inpPassword,this.password)
 }
 
-userSchema.methods.getJwtToken = async function(){
+vendorSchema.methods.getJwtToken = async function(){
     return jwt.sign({ id:this._id },process.env.SECRET, {
         expiresIn:process.env.EXP,
     })
 }
 
-userSchema.methods.getForgotPasswordToken = async function(){
+vendorSchema.methods.getForgotPasswordToken = async function(){
     const ftoken = crypto.randomBytes(20).toString("hex");
 
     this.forgotPasswordToken = crypto.createHash("sha256").update(ftoken).digest("hex")
@@ -73,4 +74,4 @@ userSchema.methods.getForgotPasswordToken = async function(){
 
     return ftoken
 }
-module.exports = mongoose.model("User", userSchema)
+module.exports = mongoose.model("Vendor", vendorSchema)

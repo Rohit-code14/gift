@@ -67,6 +67,69 @@ exports.signUp = BigPromise(
         cookieToken(user, res);
     }
 )
+exports.vendorSignUp = BigPromise(
+    async(req,res,next) => {
+
+        if(req.files){
+            let file = req.files.photo
+            const result = await cloudinary.uploader.upload(file.tempFilePath,{
+                folder: "user",
+                crop:"scale",
+                width:150
+            })
+            console.log(result);
+            const {name,email,password, city} = req.body
+            // if(!email || !name || !password || !city){
+            //     return next(new Error("Name,Email,password,city are required"))
+            // }
+            if(!email || !name || !password || !city){
+                // return next(new Error("Name,Email,password,city are required"))
+                return res.status(400).json({err:"Please fill all the fields"})
+            }
+            const existing = await User.findOne({email})
+            if(existing){
+                console.log("exist");
+                return res.status(401).json({err:"Already registered"})
+            }
+            
+            const user = await User.create({
+                name,
+                email,
+                password,
+                city,
+                photo:{
+                    id:result.public_id,
+                    secure_url:result.secure_url
+                }
+            })
+            cookieToken(user, res);
+        }
+
+
+
+        const {name,email,password, city, shopname} = req.body
+        console.log(name,email,password,city)
+        if(!email || !name || !password || !city || !shopname){
+            // return next(new Error("Name,Email,password,city are required"))
+            return res.status(400).json({err:"Please fill all the fields"})
+        }
+        const existing = await User.findOne({email})
+        if(existing){
+            console.log("exist");
+            return res.status(401).json({err:"Already registered"})
+        }
+
+        const user = await User.create({
+            name,
+            email,
+            password,
+            city,
+            shopname,
+            role:"vendor"
+        })
+        cookieToken(user, res);
+    }
+)
 
 exports.login = BigPromise(
     async(req,res,next) => {

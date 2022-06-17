@@ -4,10 +4,13 @@ const jwt = require("jsonwebtoken")
 
 exports.isLoggedIn = bigPromise(
     async(req,res,next) => {
-        const token = req.cookies.token || req.header("Authorization").replace('Bearer ','')
+        const token =req.body.token || req.cookies.token || req.header("Authorization").replace('Bearer ','')
 
         if(!token){
-            return next(new Error("Login to access"))
+            // return next(new Error("Login to access"))
+            return res.status(400).json({
+                success:false
+            })
         }
 
         const decode = jwt.verify(token, process.env.SECRET)
